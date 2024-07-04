@@ -16,18 +16,20 @@ struct Health(f32);
 
 const SNAKE_HEAD_COLOR: Color = Color::rgb(0.0, 1.0, 0.0);
 
+#[derive(Debug)]
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
 #[derive(Debug, Component)]
-struct SnakeHead;
+struct SnakeHead {
+    direction: Direction,
+}
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
-
-    commands.spawn((Name::new("J.C. Denton"), Health(100.0)));
-    commands.spawn((Name::new("Bob Page"), Health(200.0), SnakeHead));
 }
 
 fn print_names(names: Query<(&Name, &Health)>) {
@@ -63,26 +65,42 @@ fn spawn_snake(mut commands: Commands) {
             },
             ..default()
         })
-        .insert(SnakeHead);
+        .insert(SnakeHead {
+            direction: Direction::Up,
+        });
 }
 
 fn snake_movement(
     keybord_input: Res<ButtonInput<KeyCode>>,
-    mut head_positions: Query<(&SnakeHead, &mut Transform)>,
+    mut head_positions: Query<(&mut SnakeHead, &mut Transform)>,
 ) {
     let _ = keybord_input;
-    for (_head, mut transform) in head_positions.iter_mut() {
+    for (mut head, mut transform) in head_positions.iter_mut() {
         if keybord_input.pressed(KeyCode::ArrowLeft) {
-            transform.translation.x -= 2.0;
+            head.direction = Direction::Left;
         }
         if keybord_input.pressed(KeyCode::ArrowRight) {
-            transform.translation.x += 2.0;
+            head.direction = Direction::Right;
         }
         if keybord_input.pressed(KeyCode::ArrowDown) {
-            transform.translation.y -= 2.0;
+            head.direction = Direction::Down;
         }
         if keybord_input.pressed(KeyCode::ArrowUp) {
-            transform.translation.y += 2.0;
+            head.direction = Direction::Up;
+        }
+        match head.direction {
+            Direction::Up => {
+                transform.translation.y += 1.0;
+            }
+            Direction::Down => {
+                transform.translation.y -= 1.0;
+            }
+            Direction::Left => {
+                transform.translation.x -= 1.0;
+            }
+            Direction::Right => {
+                transform.translation.x += 1.0;
+            }
         }
     }
 }
