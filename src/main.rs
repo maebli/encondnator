@@ -4,7 +4,10 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, (spawn_snake, setup))
-        .add_systems(Update, (print_names, take_damage, despawn_dead).chain())
+        .add_systems(
+            Update,
+            (print_names, take_damage, despawn_dead, snake_movement).chain(),
+        )
         .run();
 }
 
@@ -61,4 +64,25 @@ fn spawn_snake(mut commands: Commands) {
             ..default()
         })
         .insert(SnakeHead);
+}
+
+fn snake_movement(
+    keybord_input: Res<ButtonInput<KeyCode>>,
+    mut head_positions: Query<(&SnakeHead, &mut Transform)>,
+) {
+    let _ = keybord_input;
+    for (_head, mut transform) in head_positions.iter_mut() {
+        if keybord_input.pressed(KeyCode::ArrowLeft) {
+            transform.translation.x -= 2.0;
+        }
+        if keybord_input.pressed(KeyCode::ArrowRight) {
+            transform.translation.x += 2.0;
+        }
+        if keybord_input.pressed(KeyCode::ArrowDown) {
+            transform.translation.y -= 2.0;
+        }
+        if keybord_input.pressed(KeyCode::ArrowUp) {
+            transform.translation.y += 2.0;
+        }
+    }
 }
