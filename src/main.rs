@@ -14,8 +14,6 @@ fn main() {
 #[derive(Debug, Component)]
 struct Health(f32);
 
-const SNAKE_HEAD_COLOR: Color = Color::rgb(0.0, 1.0, 0.0);
-
 #[derive(Debug)]
 enum Direction {
     Up,
@@ -52,17 +50,14 @@ fn despawn_dead(mut commands: Commands, healths: Query<(Entity, &Health)>) {
     }
 }
 
-fn spawn_snake(mut commands: Commands) {
+fn spawn_snake(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn(SpriteBundle {
-            sprite: Sprite {
-                color: SNAKE_HEAD_COLOR,
-                ..default()
-            },
             transform: Transform {
-                scale: Vec3::new(10.0, 10.0, 10.0),
+                scale: Vec3::new(0.2, 0.2, 0.2),
                 ..default()
             },
+            texture: asset_server.load("encoder.png"),
             ..default()
         })
         .insert(SnakeHead {
@@ -75,6 +70,8 @@ fn snake_movement(
     mut head_positions: Query<(&mut SnakeHead, &mut Transform)>,
 ) {
     let _ = keybord_input;
+
+    let speed = 5;
     for (mut head, mut transform) in head_positions.iter_mut() {
         if keybord_input.pressed(KeyCode::ArrowLeft) {
             head.direction = Direction::Left;
@@ -90,16 +87,16 @@ fn snake_movement(
         }
         match head.direction {
             Direction::Up => {
-                transform.translation.y += 1.0;
+                transform.translation.y += 5.0;
             }
             Direction::Down => {
-                transform.translation.y -= 1.0;
+                transform.translation.y -= 5.0;
             }
             Direction::Left => {
-                transform.translation.x -= 1.0;
+                transform.translation.x -= 5.0;
             }
             Direction::Right => {
-                transform.translation.x += 1.0;
+                transform.translation.x += 5.0;
             }
         }
     }
